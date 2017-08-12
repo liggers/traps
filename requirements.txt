@@ -1,0 +1,15 @@
+aiohttp
+appdirs
+async-timeout
+chardet
+discord.py
+multidict
+packaging
+pynacl
+pyparsing
+requests
+six
+twitterapi
+untangle
+websockets
+youtube_dl
