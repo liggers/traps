@@ -13,6 +13,7 @@ import operator
 
 from TwitterAPI import TwitterAPI
 token = os.environ['discord_token']
+print(token)
 
 tw_api = TwitterAPI(os.environ['tw_consumer_key'],
                     os.environ['tw_consumer_secret'],
