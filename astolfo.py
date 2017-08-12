@@ -12,7 +12,6 @@ import pprint
 import operator
 
 from TwitterAPI import TwitterAPI
-'''
 token = os.environ['discord_token']
 
 tw_api = TwitterAPI(os.environ['tw_consumer_key'],
@@ -26,7 +25,7 @@ tw_api = TwitterAPI(config.tw_consumer_key,
                     config.tw_consumer_secret,
                     config.tw_access_token,
                     config.tw_access_token_secret)
-
+'''
 traps_bot = Bot(command_prefix="?")
 pp = pprint.PrettyPrinter()
 
