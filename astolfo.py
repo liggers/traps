@@ -5,7 +5,6 @@ from discord.ext.commands import Bot
 from discord.voice_client import VoiceClient
 from opus_loader import load_opus_lib
 import functions
-import config
 import re
 import json
 import pprint
@@ -13,7 +12,6 @@ import operator
 
 from TwitterAPI import TwitterAPI
 token = os.environ['discord_token']
-print(token)
 
 tw_api = TwitterAPI(os.environ['tw_consumer_key'],
                     os.environ['tw_consumer_secret'],
