@@ -299,7 +299,8 @@ async def tw_dl(tw_url):
             media_list.append(videos[0]['url'])
             break
         else:
-            media_list.append(media['media_url'])
+            if media['media_url'] not in media_list:
+                media_list.append(media['media_url'])
 
     all_media = "\n".join(map(str, media_list))
     return await traps_bot.say(all_media)
