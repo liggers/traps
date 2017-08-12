@@ -10,9 +10,10 @@ import json
 import pprint
 import operator
 
+import config
 from TwitterAPI import TwitterAPI
+'''
 token = os.environ['discord_token']
-
 tw_api = TwitterAPI(os.environ['tw_consumer_key'],
                     os.environ['tw_consumer_secret'],
                     os.environ['tw_access_token'],
@@ -24,7 +25,6 @@ tw_api = TwitterAPI(config.tw_consumer_key,
                     config.tw_consumer_secret,
                     config.tw_access_token,
                     config.tw_access_token_secret)
-'''
 traps_bot = Bot(command_prefix="?")
 pp = pprint.PrettyPrinter()
 
@@ -265,12 +265,19 @@ async def leave(ctx,):
 
 @traps_bot.command()
 async def tw_dl(tw_url):
-    tweet_id = re.findall('/\d+', tw_url)
+    params = {
+        'include_entities': True,
+        'include_ext_alt_text': True,
+        'tweet_mode': 'extended'
+    }
+
+    tweet_id = re.findall('/\d+$', tw_url)
+    print(tweet_id)
     if len(tweet_id) != 1:
-        return traps_bot.say("Try ?tw_dl [tweet_url]")
+        return await traps_bot.say("Try ?tw_dl [tweet_url]")
     tweet_id = tweet_id[0].replace("/", "")
 
-    r = tw_api.request(f'statuses/show/:{tweet_id}')
+    r = tw_api.request(f'statuses/show/:{tweet_id}', params)
     tweet_dict = json.loads(r.text)
     pp.pprint(tweet_dict)
 
