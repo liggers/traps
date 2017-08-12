@@ -6,9 +6,20 @@ from discord.voice_client import VoiceClient
 from opus_loader import load_opus_lib
 import functions
 import config
+import re
+import json
+import pprint
+import operator
 
 from TwitterAPI import TwitterAPI
+'''
+token = os.environ['discord_token']
 
+tw_api = TwitterAPI(os.environ['tw_consumer_key'],
+                    os.environ['tw_consumer_secret'],
+                    os.environ['tw_access_token'],
+                    os.environ['tw_access_token_secret'])
+'''
 token = config.token
 
 tw_api = TwitterAPI(config.tw_consumer_key,
@@ -17,6 +28,7 @@ tw_api = TwitterAPI(config.tw_consumer_key,
                     config.tw_access_token_secret)
 
 traps_bot = Bot(command_prefix="?")
+pp = pprint.PrettyPrinter()
 
 @traps_bot.event
 async def on_ready():
@@ -44,6 +56,7 @@ async def commands(ctx):
     em.add_field(name='Text', value='?backwards [text]\n?spam [text] [#]\n?vertical [text]\n?story [text]\n?retardo [text]')
     em.add_field(name='Gay', value='?safe\n?nsfw\n?doujin\n?privatefap\n?gay\n?notgay\n?gaypics')
     em.add_field(name='Reddit', value='?memes\n?animemes\n?clips\n?food\n?subreddit')
+    em.add_field(name='Twitter', value='?tw_dl [tweet_url]\n')
     em.add_field(name='Misc', value='?chu\n?nafe\n?nafesfw')
     await traps_bot.send_message(member, embed=em)
 
@@ -250,6 +263,48 @@ async def leave(ctx,):
     print("voice channel: " + str(author.voice.voice_channel))
     print(traps_bot.is_voice_connected(server))
     await discord.utils.get(traps_bot.voice_clients, server=server).disconnect()
+
+
+@traps_bot.command()
+async def tw_dl(tw_url):
+    tweet_id = re.findall('/\d+', tw_url)
+    if len(tweet_id) != 1:
+        return traps_bot.say("Try ?tw_dl [tweet_url]")
+    tweet_id = tweet_id[0].replace("/", "")
+
+    r = tw_api.request(f'statuses/show/:{tweet_id}')
+    tweet_dict = json.loads(r.text)
+    pp.pprint(tweet_dict)
+
+    media_to_parse = []
+    if 'media' in tweet_dict['entities']:
+        media_to_parse.extend(tweet_dict['entities']['media'])
+
+        if 'extended_entities' in tweet_dict:
+            media_to_parse.extend(tweet_dict['extended_entities']['media'])
+
+        media_to_parse.sort(key=operator.itemgetter('type'), reverse=True)
+    else:
+        return await traps_bot.say('No media was found in that tweet')
+
+    media_list = []
+    videos = []
+    for media in media_to_parse:
+        if 'video_info' in media:
+            video_variants = media['video_info']['variants']
+            for video_variant in video_variants:
+                if 'bitrate' in video_variant:
+                    videos.append(video_variant)
+
+            # Grab highest bit rate video
+            videos.sort(key=operator.itemgetter('bitrate'), reverse=True)
+            media_list.append(videos[0]['url'])
+            break
+        else:
+            media_list.append(media['media_url'])
+
+    all_media = "\n".join(map(str, media_list))
+    return await traps_bot.say(all_media)
 
 
 @traps_bot.command()
