@@ -368,7 +368,7 @@ async def volume(*args):
     try:
         int(args[0])
         global player
-        if player and 1 < int(args[0]) <= 200:
+        if player and 1 <= int(args[0]) <= 200:
             player.volume = int(args[0]) / 100
         else:
             return await traps_bot.say("Enter a volume between 1 - 200")
