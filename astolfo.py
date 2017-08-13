@@ -24,12 +24,12 @@ tw_api = TwitterAPI(os.environ['tw_consumer_key'],
 
 '''
 token = config.token
-
 tw_api = TwitterAPI(config.tw_consumer_key,
                     config.tw_consumer_secret,
                     config.tw_access_token,
                     config.tw_access_token_secret)
 '''
+
 
 traps_bot = Bot(command_prefix="?")
 player = None
@@ -261,9 +261,11 @@ async def retardo(*args):
 
 
 @traps_bot.command(pass_context=True)
-async def join(ctx, channel_name=''):
+async def join(ctx, *channel_name):
     author = ctx.message.author
     server = ctx.message.server
+
+    channel_name = " ".join(channel_name)
 
     voice_channel = discord.utils.get(ctx.message.server.channels, name=channel_name, type=ChannelType.voice) if channel_name else author.voice.voice_channel
 
