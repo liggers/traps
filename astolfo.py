@@ -2,21 +2,26 @@ import discord
 import random, os
 import requests
 from discord.ext.commands import Bot
-from discord.voice_client import VoiceClient
+from discord import (ChannelType, VoiceState)
 from opus_loader import load_opus_lib
+import youtube_dl
 import functions
 import re
 import json
-import pprint
 import operator
+import pprint
+from time import (strftime, gmtime)
+
+from TwitterAPI import TwitterAPI
 
 #import config
-from TwitterAPI import TwitterAPI
 token = os.environ['discord_token']
 tw_api = TwitterAPI(os.environ['tw_consumer_key'],
                     os.environ['tw_consumer_secret'],
                     os.environ['tw_access_token'],
                     os.environ['tw_access_token_secret'])
+
+
 '''
 token = config.token
 
@@ -24,10 +29,12 @@ tw_api = TwitterAPI(config.tw_consumer_key,
                     config.tw_consumer_secret,
                     config.tw_access_token,
                     config.tw_access_token_secret)
-
 '''
+
 traps_bot = Bot(command_prefix="?")
+player = None
 pp = pprint.PrettyPrinter()
+
 
 @traps_bot.event
 async def on_ready():
@@ -56,8 +63,9 @@ async def commands(ctx):
     em.add_field(name='Gay', value='?safe\n?nsfw\n?doujin\n?privatefap\n?gay\n?notgay\n?gaypics')
     em.add_field(name='Reddit', value='?memes\n?animemes\n?clips\n?food\n?subreddit')
     em.add_field(name='Twitter', value='?tw_dl [tweet_url]\n')
+    em.add_field(name='Music', value='?play [url]\n?volume [#]\n?np')
     em.add_field(name='Misc', value='?chu\n?nafe\n?nafesfw')
-    await traps_bot.send_message(member, embed=em)
+    return await traps_bot.send_message(member, embed=em)
 
 
 @traps_bot.command()
@@ -69,6 +77,7 @@ async def notgay():
     ]
     return await traps_bot.say(str(gay_list[random.randint(0, len(gay_list)-1)]))
 
+
 @traps_bot.command()
 async def gay():
     gay_list = [
@@ -79,14 +88,14 @@ async def gay():
 
 @traps_bot.command()
 async def gaypics():
-    path = "/app/files/gay_pics/"
+    path = "./files/gay_pics/"
     pic = random.choice(os.listdir(path))
     return await traps_bot.upload(path + pic)
 
 
 @traps_bot.command()
 async def chu():
-    path = "/app/files/chu/"
+    path = "./files/chu/"
     pic = random.choice(os.listdir(path))
     return await traps_bot.upload(path + pic)
 
@@ -104,7 +113,7 @@ async def spam(*args):
 
     row = (text * num )
     if num < 11:
-        for i in range(0,num):
+        for i in range(0, num):
             await traps_bot.say(row)
     else:
         return await traps_bot.say("Nice try.")
@@ -136,7 +145,7 @@ async def backwards(*args):
 
 @traps_bot.command()
 async def doujin():
-    with open("/app/files/doujins.txt") as doujins:
+    with open("./files/doujins.txt") as doujins:
         line = next(doujins)
         for num, aline in enumerate(doujins):
             if random.randrange(num + 2):
@@ -147,7 +156,7 @@ async def doujin():
 
 @traps_bot.command()
 async def publicfap():
-    with open("/app/files/doujins.txt") as doujins:
+    with open("./files/doujins.txt") as doujins:
         line = next(doujins)
         for num, aline in enumerate(doujins):
             if random.randrange(num + 2):
@@ -159,7 +168,7 @@ async def publicfap():
 @traps_bot.command(pass_context=True)
 async def privatefap(ctx,):
     member = ctx.message.author
-    with open("/app/files/doujins.txt") as doujins:
+    with open("./files/doujins.txt") as doujins:
         line = next(doujins)
         for num, aline in enumerate(doujins):
             if random.randrange(num + 2):
@@ -172,6 +181,7 @@ async def privatefap(ctx,):
 async def story(*args):
     if not args:
         return await traps_bot.say('Create a story using 1 word per line. I will give you 10 seconds in between lines')
+
     else:
         args[0].split()
         final = args[0] + ' '
@@ -200,6 +210,7 @@ async def story(*args):
 async def subreddit(subreddit = None):
     if subreddit is None:
         return await traps_bot.say('Give me a subreddit!')
+
     headers = {'User-agent': 'traps-bot (by Keisakyu)'}
     url = "https://www.reddit.com/r/" + subreddit + ".json"
     for i in range(0, functions.subreddit_max_search):
@@ -217,7 +228,7 @@ async def subreddit(subreddit = None):
             if 't5' in first_suggestion['kind']:
                 return await traps_bot.say('Is this what you meant?\n' + "https://reddit.com" + first_suggestion ['data']['url'])
             else:
-                posttype = start['data']['is_self']
+                posttype = start['data']['is_']
                 replacement = 'amp;'
                 if not posttype:
                     pic = start['data']['url']
@@ -232,6 +243,9 @@ async def subreddit(subreddit = None):
 
 @traps_bot.command()
 async def retardo(*args):
+    if not args:
+        return await traps_bot.say("I suggest giving me a message to retardify")
+
     total_text = ""
     retardo_string = ""
     for text in args:
@@ -247,21 +261,34 @@ async def retardo(*args):
 
 
 @traps_bot.command(pass_context=True)
-async def join(ctx,):
+async def join(ctx, channel_name=''):
     author = ctx.message.author
-    voice_con = traps_bot.join_voice_channel(author.voice.voice_channel)
-    await voice_con
+    server = ctx.message.server
+
+    voice_channel = discord.utils.get(ctx.message.server.channels, name=channel_name, type=ChannelType.voice) if channel_name else author.voice.voice_channel
+
+    if not author.voice.voice_channel and not channel_name:
+        return await traps_bot.say("You should join a voice channel first! Or you could specify a channel name")
+
+    if not voice_channel:
+        return await traps_bot.say(f"{channel_name} is not a voice channel")
+
+    voice_con = traps_bot.join_voice_channel(voice_channel)
+
+    if traps_bot.is_voice_connected(server):
+        await discord.utils.get(traps_bot.voice_clients).disconnect()
+
+    return await voice_con
 
 
 @traps_bot.command(pass_context=True)
 async def leave(ctx,):
-    author = ctx.message.author
     server = ctx.message.server
-    voice_channel_name = author.voice.voice_channel
-    voice_channel = discord.utils.get(ctx.message.server.channels, name=str(author.voice.voice_channel))
-    print("voice channel: " + str(author.voice.voice_channel))
-    print(traps_bot.is_voice_connected(server))
-    await discord.utils.get(traps_bot.voice_clients, server=server).disconnect()
+
+    if not traps_bot.is_voice_connected(server):
+        return await traps_bot.say("Leave what?")
+
+    return await discord.utils.get(traps_bot.voice_clients).disconnect()
 
 
 @traps_bot.command()
@@ -314,6 +341,53 @@ async def tw_dl(tw_url):
     return await traps_bot.say(all_media)
 
 
+@traps_bot.command(pass_context=True)
+async def play(ctx, *args):
+    if not args:
+        return await traps_bot.say("gib url")
+
+    author = ctx.message.author
+    server = ctx.message.server
+
+    voice = await traps_bot.join_voice_channel(author.voice.voice_channel) if not traps_bot.is_voice_connected(server) else discord.utils.get(traps_bot.voice_clients)
+
+    global player
+    if not player:
+        player = await voice.create_ytdl_player(args[0])
+        player.volume = 0.05
+        player.start()
+
+    return
+
+
+@traps_bot.command()
+async def volume(*args):
+    if not args:
+        return await traps_bot.say("Enter a volume between 1 - 200")
+
+    try:
+        int(args[0])
+        global player
+        if player and 1 < int(args[0]) <= 200:
+            player.volume = int(args[0]) / 100
+        else:
+            return await traps_bot.say("Enter a volume between 1 - 200")
+
+        return
+    except (TypeError, ValueError):
+        return await traps_bot.say("Enter a volume between 1 - 200")
+
+
+@traps_bot.command(pass_context=True)
+async def np(ctx, *args):
+    global player
+    if player:
+        duration = strftime("%M:%S", gmtime(player.duration))
+        return await traps_bot.say(f"Now Playing:```\n{player.title}\n{duration}```")
+
+    else:
+        return traps_bot.say("There is nothing playing")
+
 @traps_bot.command()
 async def safe(*args):
     return await traps_bot.say(functions.gelbooru_image_search("safe",  "trap", *args))
@@ -352,8 +426,5 @@ async def food():
 @traps_bot.command()
 async def clips():
     return await traps_bot.say(functions.subreddit_search(['livestreamfail']))
-
-
-
 
 traps_bot.run(token)
