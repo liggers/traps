@@ -2,7 +2,7 @@ aiohttp
 appdirs
 async-timeout
 chardet
-discord.py
+discord.py[voice]
 multidict
 packaging
 pynacl
