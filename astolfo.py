@@ -2,7 +2,7 @@ import discord
 import random, os
 import requests
 from discord.ext.commands import Bot
-from discord import (ChannelType, VoiceState)
+from discord import (ChannelType, VoiceState, Emoji)
 from opus_loader import load_opus_lib
 import youtube_dl
 import functions
@@ -35,7 +35,7 @@ async def on_ready():
     print(traps_bot.user.id)
     print('------')
     load_opus_lib()
-    await traps_bot.change_presence(game=discord.Game(name='Feminine Penises | ?commands'))
+    await traps_bot.change_presence(game=discord.Game(name='?commands | Feminine Penises'))
 
 
 @traps_bot.command(pass_context=True)
@@ -212,6 +212,7 @@ async def subreddit(subreddit = None):
             if 'error' in r:
                 if r['error'] == '404':
                     return await traps_bot.say("Something doesn't look right.")
+            print(url)
             if not r['data']['children']:
                 return await traps_bot.say('Looks pretty empty.')
             start = random.choice(r['data']['children'])
@@ -220,7 +221,7 @@ async def subreddit(subreddit = None):
             if 't5' in first_suggestion['kind']:
                 return await traps_bot.say('Is this what you meant?\n' + "https://reddit.com" + first_suggestion ['data']['url'])
             else:
-                posttype = start['data']['is_']
+                posttype = start['data']['is_self']
                 replacement = 'amp;'
                 if not posttype:
                     pic = start['data']['url']
@@ -267,12 +268,10 @@ async def join(ctx, *channel_name):
     if not voice_channel:
         return await traps_bot.say(f"{channel_name} is not a voice channel")
 
-    voice_con = traps_bot.join_voice_channel(voice_channel)
-
     if traps_bot.is_voice_connected(server):
         await discord.utils.get(traps_bot.voice_clients).disconnect()
 
-    return await voice_con
+    return await traps_bot.join_voice_channel(voice_channel)
 
 
 @traps_bot.command(pass_context=True)
@@ -286,7 +285,10 @@ async def leave(ctx,):
 
 
 @traps_bot.command()
-async def tw_dl(tw_url):
+async def tw_dl(*args):
+    if not args:
+        return await traps_bot.say("Give me a tweet url")
+    tw_url = args[0]
     params = {
         'include_entities': True,
         'include_ext_alt_text': True,
@@ -346,6 +348,7 @@ async def play(ctx, *args):
     voice = await traps_bot.join_voice_channel(author.voice.voice_channel) if not traps_bot.is_voice_connected(server) else discord.utils.get(traps_bot.voice_clients)
 
     global player
+
     if not player:
         player = await voice.create_ytdl_player(args[0])
         player.volume = 0.05
@@ -354,22 +357,49 @@ async def play(ctx, *args):
     return
 
 
-@traps_bot.command()
-async def volume(*args):
+@traps_bot.command(pass_context=True)
+async def volume(ctx, *args):
+    server = ctx.message.server
+
+    if not traps_bot.is_voice_connected(server):
+        return await traps_bot.say("Put me into a voice channel first!")
+
     if not args:
         return await traps_bot.say("Enter a volume between 1 - 200")
 
+    volume_dict = {
+        '1': ':one:',
+        '2': ':two:',
+        '3': ':three:',
+        '4': ':four:',
+        '5': ':five:',
+        '6': ':six:',
+        '7': ':seven:',
+        '8': ':eight:',
+        '9': ':nine:',
+        '0': ':zero:'
+    }
+
     try:
-        int(args[0])
+        vol = args[0]
+        int(vol)
         global player
         if player and 1 <= int(args[0]) <= 200:
             player.volume = int(args[0]) / 100
+            volume_string = ''
+            for num in list(str(vol)):
+                volume_string += volume_dict[num]
+
+            return await traps_bot.say(f":speaker: {volume_string}")
+
+        elif not player:
+            return await traps_bot.say("Play something first!")
+
         else:
             return await traps_bot.say("Enter a volume between 1 - 200")
 
-        return
     except (TypeError, ValueError):
-        return await traps_bot.say("Enter a volume between 1 - 200")
+        return await traps_bot.say("Enter a valid number")
 
 
 @traps_bot.command(pass_context=True)
@@ -421,4 +451,5 @@ async def food():
 async def clips():
     return await traps_bot.say(functions.subreddit_search(['livestreamfail']))
 
+traps_bot.remove_command('help')
 traps_bot.run(token)
