@@ -24,6 +24,7 @@ tw_api = TwitterAPI(config.tw_consumer_key,
 
 
 traps_bot = Bot(command_prefix="?")
+bot_name = "Traps Aren't Gay"
 player = None
 pp = pprint.PrettyPrinter()
 
@@ -36,6 +37,16 @@ async def on_ready():
     print('------')
     load_opus_lib()
     await traps_bot.change_presence(game=discord.Game(name='?commands | Feminine Penises'))
+
+
+@traps_bot.event
+async def on_message(message):
+    gay_list = ['gay', 'fag']
+    message_formatted = message.content.lower()
+    if any(x in message_formatted for x in gay_list) and message.author.name != bot_name:
+        await traps_bot.send_message(message.channel, "Not gay")
+
+    await traps_bot.process_commands(message)
 
 
 @traps_bot.command(pass_context=True)
