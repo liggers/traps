@@ -28,6 +28,19 @@ bot_name = "Traps Aren't Gay"
 player = None
 pp = pprint.PrettyPrinter()
 
+number_emoji_dict = {
+    '1': ':one:',
+    '2': ':two:',
+    '3': ':three:',
+    '4': ':four:',
+    '5': ':five:',
+    '6': ':six:',
+    '7': ':seven:',
+    '8': ':eight:',
+    '9': ':nine:',
+    '0': ':zero:'
+}
+
 
 @traps_bot.event
 async def on_ready():
@@ -67,8 +80,21 @@ async def commands(ctx):
     em.add_field(name='Reddit', value='?memes\n?animemes\n?clips\n?food\n?subreddit')
     em.add_field(name='Twitter', value='?tw_dl [tweet_url]\n')
     em.add_field(name='Music', value='?play [url]\n?volume [#]\n?np')
-    em.add_field(name='Misc', value='?chu\n?nafe\n?nafesfw')
+    em.add_field(name='Misc', value='?chu\n?nafe\n?nafesfw\n?roll')
     return await traps_bot.send_message(member, embed=em)
+
+
+@traps_bot.command()
+async def roll():
+    number = random.randint(1, 100)
+    roll_text = ''
+    for x in str(number):
+        roll_text += number_emoji_dict[x]
+
+    if number == 100:
+        roll_text += ":confetti_ball: :confetti_ball: :confetti_ball:"
+
+    return await traps_bot.say(roll_text)
 
 
 @traps_bot.command()
@@ -378,19 +404,6 @@ async def volume(ctx, *args):
     if not args:
         return await traps_bot.say("Enter a volume between 1 - 200")
 
-    volume_dict = {
-        '1': ':one:',
-        '2': ':two:',
-        '3': ':three:',
-        '4': ':four:',
-        '5': ':five:',
-        '6': ':six:',
-        '7': ':seven:',
-        '8': ':eight:',
-        '9': ':nine:',
-        '0': ':zero:'
-    }
-
     try:
         vol = args[0]
         int(vol)
@@ -399,7 +412,7 @@ async def volume(ctx, *args):
             player.volume = int(args[0]) / 100
             volume_string = ''
             for num in list(str(vol)):
-                volume_string += volume_dict[num]
+                volume_string += number_emoji_dict[num]
 
             return await traps_bot.say(f":speaker: {volume_string}")
 
