@@ -68,7 +68,10 @@ async def on_message(message):
     message_formatted = message_formatted.replace("(-)", "h")
     message_formatted = message_formatted.replace(")-(", "h")
     message_formatted = message_formatted.replace("#", "h")
-
+    message_formatted = message_formatted.replace("()", "o")
+    message_formatted = message_formatted.replace("()", "o")
+    message_formatted = message_formatted.replace("[]", "o")
+    message_formatted = message_formatted.replace("{}", "o")
 
     message_formatted = re.sub('[][!@#$%^&*(){}\-_=+`~|.,<>/;:\'\"]', '', message_formatted)
 
