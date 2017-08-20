@@ -56,6 +56,7 @@ async def on_ready():
 async def on_message(message):
     gay_list = ['gay', 'fag', 'g@y', 'g4y']
     message_formatted = message.content.replace(" ", "").lower()
+    message_formatted = re.sub('[][!@#$%^&*()\-_=+`~|.,<>/]', '', message_formatted)
     if any(x in message_formatted for x in gay_list) and message.author.name != bot_name:
         await traps_bot.send_message(message.channel, "Not gay")
 
