@@ -56,11 +56,21 @@ async def on_ready():
 async def on_message(message):
     gay_list = ['gay', 'fag', 'homo']
     message_formatted = message.content.replace(" ", "").lower()
-    message_formatted = message_formatted.replace("0", "o").lower()
-    message_formatted = message_formatted.replace("4", "a").lower()
-    message_formatted = message_formatted.replace("@", "a").lower()
+    message_formatted = message_formatted.replace("0", "o")
+    message_formatted = message_formatted.replace("4", "a")
+    message_formatted = message_formatted.replace("@", "a")
+    message_formatted = message_formatted.replace("/\\", "a")
+    message_formatted = message_formatted.replace("/-\\", "a")
+    message_formatted = message_formatted.replace("|-|", "h")
+    message_formatted = message_formatted.replace("|\\/\\|", "h")
+    message_formatted = message_formatted.replace("]-[", "h")
+    message_formatted = message_formatted.replace("}-{", "h")
+    message_formatted = message_formatted.replace("(-)", "h")
+    message_formatted = message_formatted.replace(")-(", "h")
+    message_formatted = message_formatted.replace("#", "h")
 
-    message_formatted = re.sub('[][!@#$%^&*()\-_=+`~|.,<>/]', '', message_formatted)
+
+    message_formatted = re.sub('[][!@#$%^&*(){}\-_=+`~|.,<>/;:\'\"]', '', message_formatted)
 
     message_formatted_reversed = message_formatted[::-1]
     if any(x in message_formatted for x in gay_list) and message.author.name != bot_name:
