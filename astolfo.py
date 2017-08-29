@@ -12,6 +12,7 @@ import operator
 import pprint
 from time import (strftime, gmtime)
 
+from trap_dict import (number_emoji_dict, gay_message_dict)
 from TwitterAPI import TwitterAPI
 
 import config
@@ -28,19 +29,6 @@ bot_name = "Traps Aren't Gay"
 player = None
 pp = pprint.PrettyPrinter()
 
-number_emoji_dict = {
-    '1': ':one:',
-    '2': ':two:',
-    '3': ':three:',
-    '4': ':four:',
-    '5': ':five:',
-    '6': ':six:',
-    '7': ':seven:',
-    '8': ':eight:',
-    '9': ':nine:',
-    '0': ':zero:'
-}
-
 
 @traps_bot.event
 async def on_ready():
@@ -48,30 +36,17 @@ async def on_ready():
     print(traps_bot.user.name)
     print(traps_bot.user.id)
     print('------')
-    load_opus_lib()
     await traps_bot.change_presence(game=discord.Game(name='?commands | Feminine Penises'))
+    load_opus_lib()
 
 
 @traps_bot.event
 async def on_message(message):
     gay_list = ['gay', 'fag', 'homo']
     message_formatted = message.content.replace(" ", "").lower()
-    message_formatted = message_formatted.replace("0", "o")
-    message_formatted = message_formatted.replace("4", "a")
-    message_formatted = message_formatted.replace("@", "a")
-    message_formatted = message_formatted.replace("/\\", "a")
-    message_formatted = message_formatted.replace("/-\\", "a")
-    message_formatted = message_formatted.replace("|-|", "h")
-    message_formatted = message_formatted.replace("|\\/\\|", "h")
-    message_formatted = message_formatted.replace("]-[", "h")
-    message_formatted = message_formatted.replace("}-{", "h")
-    message_formatted = message_formatted.replace("(-)", "h")
-    message_formatted = message_formatted.replace(")-(", "h")
-    message_formatted = message_formatted.replace("#", "h")
-    message_formatted = message_formatted.replace("()", "o")
-    message_formatted = message_formatted.replace("()", "o")
-    message_formatted = message_formatted.replace("[]", "o")
-    message_formatted = message_formatted.replace("{}", "o")
+
+    for replace_str, replacer in gay_message_dict.items():
+        message_formatted = message_formatted.replace(replace_str, replacer)
 
     message_formatted = re.sub('[][!@#$%^&*(){}\-_=+`~|.,<>/;:\'\"]', '', message_formatted)
 
