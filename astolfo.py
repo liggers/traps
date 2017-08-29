@@ -36,8 +36,8 @@ async def on_ready():
     print(traps_bot.user.name)
     print(traps_bot.user.id)
     print('------')
-    await traps_bot.change_presence(game=discord.Game(name='?commands | Feminine Penises'))
     load_opus_lib()
+    await traps_bot.change_presence(game=discord.Game(name="?commands"))
 
 
 @traps_bot.event
