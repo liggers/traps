@@ -2,9 +2,7 @@ import discord
 import random, os
 import requests
 from discord.ext.commands import Bot
-from discord import (ChannelType, VoiceState, Emoji)
 from opus_loader import load_opus_lib
-import youtube_dl
 import functions
 import re
 import json
@@ -38,6 +36,7 @@ async def on_ready():
     print('------')
     load_opus_lib()
     await traps_bot.change_presence(game=discord.Game(name="?commands"))
+    print('dicks')
 
 
 @traps_bot.event
@@ -295,7 +294,7 @@ async def join(ctx, *channel_name):
 
     channel_name = " ".join(channel_name)
 
-    voice_channel = discord.utils.get(ctx.message.server.channels, name=channel_name, type=ChannelType.voice) if channel_name else author.voice.voice_channel
+    voice_channel = discord.utils.get(ctx.message.server.channels, name=channel_name, type=discord.ChannelType.voice) if channel_name else author.voice.voice_channel
 
     if not author.voice.voice_channel and not channel_name:
         return await traps_bot.say("You should join a voice channel first! Or you could specify a channel name")
