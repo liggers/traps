@@ -387,7 +387,6 @@ async def play(ctx, *args):
         player = await voice.create_ytdl_player(args[0])
         player.volume = 0.05
         player.start()
-
     return
 
 
@@ -408,8 +407,13 @@ async def volume(ctx, *args):
         if player and 1 <= int(args[0]) <= 200:
             player.volume = int(args[0]) / 100
             volume_string = ''
-            for num in list(str(vol)):
-                volume_string += number_emoji_dict[num]
+            if int(vol) == 69:
+                volume_string = ':cancer:'
+            elif int(vol) == 200:
+                volume_string = ':regional_indicator_m: :regional_indicator_a: :regional_indicator_x: '
+            else:
+                for num in list(str(vol)):
+                    volume_string += number_emoji_dict[num]
 
             return await traps_bot.say(f":speaker: {volume_string}")
 
@@ -432,6 +436,37 @@ async def np(ctx, *args):
 
     else:
         return traps_bot.say("There is nothing playing")
+
+
+@traps_bot.command(pass_context=True)
+async def stop(ctx,):
+    global player
+    if player:
+        player.stop()
+        return await traps_bot.say(":musical_note: :gun:")
+    else:
+        return traps_bot.say("There is nothing playing!")
+
+
+@traps_bot.command(pass_context=True)
+async def pause(ctx,):
+    global player
+    if player:
+        player.pause()
+        return await traps_bot.say(":musical_note: :octagonal_sign:")
+    else:
+        return traps_bot.say("There is nothing playing!")
+
+
+@traps_bot.command(pass_context=True)
+async def resume(ctx,):
+    global player
+    if player:
+        player.resume()
+        return await traps_bot.say(":musical_note: :ok:")
+    else:
+        return traps_bot.say("There is nothing playing!")
+
 
 @traps_bot.command()
 async def safe(*args):
