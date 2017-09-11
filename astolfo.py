@@ -50,10 +50,10 @@ async def on_message(message):
     message_formatted = re.sub('[][!@#$%^&*(){}\-_=+`~|.,<>/;:\'\"]', '', message_formatted)
 
     message_formatted_reversed = message_formatted[::-1]
-    if any(x in message_formatted for x in gay_list) and message.author.name != bot_name and not message.startswith('?'):
+    if any(x in message_formatted for x in gay_list) and message.author.name != bot_name and not str(message).startswith('?'):
         await traps_bot.send_message(message.channel, "Not gay")
 
-    if any(x in message_formatted_reversed for x in gay_list) and message.author.name != bot_name and not message.startswith('?'):
+    if any(x in message_formatted_reversed for x in gay_list) and message.author.name != bot_name and not str(message).startswith('?'):
         await traps_bot.send_message(message.channel, "yag toN")
 
     await traps_bot.process_commands(message)
