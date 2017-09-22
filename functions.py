@@ -31,7 +31,7 @@ def gelbooru_image_search(rating, trap="",  *args):
         del pic[-1]
         pic = random.choice(pic)
         pic = pic.attrib
-        return "https:" + pic['file_url']
+        return pic['file_url']
     except IndexError:
         return "Nice command."
 
