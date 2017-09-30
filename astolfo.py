@@ -34,7 +34,7 @@ async def on_ready():
     print(traps_bot.user.name)
     print(traps_bot.user.id)
     print('------')
-    load_opus_lib()
+    #load_opus_lib()
     await traps_bot.change_presence(game=discord.Game(name="?commands"))
     print('dicks')
 
@@ -57,7 +57,7 @@ async def on_message(message):
         if any(x in message_formatted_reversed for x in gay_list) and message.author.name != bot_name:
             await traps_bot.send_message(message.channel, "yag toN")
 
-        await traps_bot.process_commands(message)
+    await traps_bot.process_commands(message)
 
 
 @traps_bot.command(pass_context=True)
