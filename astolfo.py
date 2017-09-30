@@ -41,22 +41,23 @@ async def on_ready():
 
 @traps_bot.event
 async def on_message(message):
-    gay_list = ['gay', 'fag', 'homo']
-    message_formatted = message.content.replace(" ", "").lower()
+    if not message.content.startswith("?"):
+        gay_list = ['gay', 'fag', 'homo']
+        message_formatted = message.content.replace(" ", "").lower()
 
-    for replace_str, replacer in gay_message_dict.items():
-        message_formatted = message_formatted.replace(replace_str, replacer)
+        for replace_str, replacer in gay_message_dict.items():
+            message_formatted = message_formatted.replace(replace_str, replacer)
 
-    message_formatted = re.sub('[][!@#$%^&*(){}\-_=+`~|.,<>/;:\'\"]', '', message_formatted)
+        message_formatted = re.sub('[][!@#$%^&*(){}\-_=+`~|.,<>/;:\'\"]', '', message_formatted)
 
-    message_formatted_reversed = message_formatted[::-1]
-    if any(x in message_formatted for x in gay_list) and message.author.name != bot_name and not str(message).startswith('?'):
-        await traps_bot.send_message(message.channel, "Not gay")
+        message_formatted_reversed = message_formatted[::-1]
+        if any(x in message_formatted for x in gay_list) and message.author.name != bot_name:
+            await traps_bot.send_message(message.channel, "Not gay")
 
-    if any(x in message_formatted_reversed for x in gay_list) and message.author.name != bot_name and not str(message).startswith('?'):
-        await traps_bot.send_message(message.channel, "yag toN")
+        if any(x in message_formatted_reversed for x in gay_list) and message.author.name != bot_name:
+            await traps_bot.send_message(message.channel, "yag toN")
 
-    await traps_bot.process_commands(message)
+        await traps_bot.process_commands(message)
 
 
 @traps_bot.command(pass_context=True)
@@ -370,7 +371,7 @@ async def tw_dl(*args):
     all_media = "\n".join(map(str, media_list))
     return await traps_bot.say(all_media)
 
-
+'''
 @traps_bot.command(pass_context=True)
 async def play(ctx, *args):
     if not args:
@@ -388,7 +389,7 @@ async def play(ctx, *args):
         player.volume = 0.05
         player.start()
     return
-
+'''
 
 @traps_bot.command(pass_context=True)
 async def volume(ctx, *args):
