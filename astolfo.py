@@ -2,12 +2,13 @@ import discord
 import random, os
 import requests
 from discord.ext.commands import Bot
-from opus_loader import load_opus_lib
+#from opus_loader import load_opus_lib
 import functions
 import re
 import json
 import operator
 import pprint
+from connect_4 import connect_4
 from time import (strftime, gmtime)
 
 from trap_dict import (number_emoji_dict, gay_message_dict)
@@ -33,6 +34,7 @@ async def on_ready():
     print('Logged in as')
     print(traps_bot.user.name)
     print(traps_bot.user.id)
+    print(traps_bot.user)
     print('------')
     #load_opus_lib()
     await traps_bot.change_presence(game=discord.Game(name="?commands"))
@@ -467,6 +469,65 @@ async def resume(ctx,):
         return await traps_bot.say(":musical_note: :ok:")
     else:
         return traps_bot.say("There is nothing playing!")
+
+
+@traps_bot.command(pass_context=True)
+async def embed_test(ctx,):
+    pass
+
+
+@traps_bot.command(pass_context=True)
+async def connect4(ctx, player2_id):
+    def check(msg):
+        try:
+            num = int(msg.content)
+            if 1 <= num <= 7:
+                return True
+        except:
+            return False
+
+    column_full_message = None
+    player1 = ctx.message.author
+    player2 = re.findall(r'\d+', player2_id)[0]
+    for x in ctx.message.server.members:
+        if int(x.id) == int(player2):
+            player2 = x
+            break
+
+    c4 = connect_4(player1.name, player2.name)
+
+    previous_board = await traps_bot.say(c4.create_board())
+    #await traps_bot.say(player1.avatar_url)
+    while True:
+        drop_piece_to_column = await traps_bot.wait_for_message(timeout=600, author=discord.utils.get(ctx.message.server.members, name=c4.players_turn), check=check)
+
+        if column_full_message:
+            await traps_bot.delete_message(column_full_message)
+            column_full_message = None
+
+        await traps_bot.delete_message(drop_piece_to_column)
+        success = c4.drop_piece(int(drop_piece_to_column.content))
+
+        if not c4.check_for_win() and not column_full_message:
+            c4.switch_players_turn()
+
+        if not success:
+            column_full_message = await traps_bot.say('That column is full! Pick another column')
+            continue
+        else:
+            counter = 0
+            async for x in traps_bot.logs_from(ctx.message.channel, limit=5):
+                if x.id == previous_board.id and counter == 0:
+                    await traps_bot.edit_message(previous_board, new_content=c4.create_board())
+                else:
+                    await traps_bot.delete_message(previous_board)
+                    previous_board = await traps_bot.say(c4.create_board())
+                if c4.number_of_pieces_played == c4.rows * c4.columns:
+                    return await traps_bot.say('Draw!')
+                break
+
+        if c4.check_for_win():
+            return await traps_bot.say(f'{c4.players_turn} wins! :confetti_ball:')
 
 
 @traps_bot.command()
