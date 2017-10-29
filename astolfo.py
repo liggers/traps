@@ -517,13 +517,17 @@ async def nhentai(*tags):
     http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where(), maxsize=1, timeout=5)
     url = search_url = 'https://nhentai.net/'
     if tags:
-        search_url += 'search/?q=' + '+'.join(tags)
+        search_url += 'search/?q=' + '+'.join(tag.replace("_", "-") for tag in tags)
     r = http.request('GET', search_url)
     soup = BeautifulSoup(r.data, 'html.parser')
     #last_page = soup.find('a', class_='last').get('href').split('page=')[1]
 
     images = [i.get('href') for i in soup.find_all('a', attrs={'class': 'cover'})]
-    return await traps_bot.say(url + random.choice(images)[1:])
+
+    try:
+        return await traps_bot.say(url + random.choice(images)[1:])
+    except IndexError:
+        return await traps_bot.say("No hentai found!")
 
 @traps_bot.command()
 async def safe(*args):
