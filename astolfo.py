@@ -7,11 +7,14 @@ import functions
 import re
 import json
 import operator
+import urllib3
 import pprint
+from bs4 import BeautifulSoup
+import certifi
 from connect_4 import connect_4
 from time import (strftime, gmtime)
 
-from trap_dict import (number_emoji_dict, gay_message_dict)
+from trap_dict import *
 from TwitterAPI import TwitterAPI
 
 import config
@@ -75,12 +78,9 @@ async def commands(ctx):
     member = ctx.message.channel
     em = discord.Embed(title='Commands', colour=0xFFC9E5)
     em.set_footer(text='The dick only makes it better!')
-    em.add_field(name='Text', value='?backwards [text]\n?spam [text] [#]\n?vertical [text]\n?story [text]\n?retardo [text]')
-    em.add_field(name='Gay', value='?safe\n?nsfw\n?doujin\n?privatefap\n?gay\n?notgay\n?gaypics')
-    em.add_field(name='Reddit', value='?memes\n?animemes\n?clips\n?food\n?subreddit')
-    em.add_field(name='Twitter', value='?tw_dl [tweet_url]\n')
-    em.add_field(name='Music', value='?play [url]\n?volume [#]\n?np')
-    em.add_field(name='Misc', value='?chu\n?nafe\n?nafesfw\n?roll')
+    for key, command_name in commands_dict.items():
+        em.add_field(name=key, value='\n'.join(command_name))
+
     return await traps_bot.send_message(member, embed=em)
 
 
@@ -98,25 +98,7 @@ async def roll():
 
 
 @traps_bot.command()
-async def notgay():
-    gay_list = [
-        "The dick only makes it better!",
-        "It's not gay if it's cute",
-        "It's a feminine dick"
-    ]
-    return await traps_bot.say(str(gay_list[random.randint(0, len(gay_list)-1)]))
-
-
-@traps_bot.command()
 async def gay():
-    gay_list = [
-        "Where's the dick?",
-        "Look at that \"cute girl\""]
-    return await traps_bot.say(random.choice(gay_list))
-
-
-@traps_bot.command()
-async def gaypics():
     path = "./files/gay_pics/"
     pic = random.choice(os.listdir(path))
     return await traps_bot.upload(path + pic)
@@ -131,16 +113,17 @@ async def chu():
 
 @traps_bot.command()
 async def spam(*args):
-    text = ''
-    for i in args[:-1]:
-        text += i + ' '
+    if not args:
+        return await traps_bot.say("Give me some spam and a number!")
+
+    text = ' '.join(args[:-1]) + ' '
 
     try:
         num = int(args[-1])
-    except TypeError:
-        return await traps_bot.say("Put a number at the end of your spam")
+    except (TypeError, ValueError):
+        return await traps_bot.say("Put a number at the end of your spam!")
 
-    row = (text * num )
+    row = (text * num)
     if num < 11:
         for i in range(0, num):
             await traps_bot.say(row)
@@ -150,26 +133,29 @@ async def spam(*args):
 
 @traps_bot.command()
 async def vertical(*args):
-    text = ''
-    for i in args:
-        text += i + ' '
+    if not args:
+        return traps_bot.say('Give me something to say vertically!')
+    text = ' '.join(args)
+    print(text)
+
     if len(text) > 50:
         return await traps_bot.say("Yea, no.")
-    else:
-        vertical_list = list(text)
-        del vertical_list[0]
-        final = text
-        for i in vertical_list:
-            final = final + "\n" + i
-        return await traps_bot.say(final)
+
+    vertical_list = list(text)[1:]
+    text += '\n'
+    text += '\n'.join(vertical_list)
+
+    return await traps_bot.say(text)
 
 
 @traps_bot.command()
 async def backwards(*args):
-    final = ''
-    for i in args:
-        final += i + ' '
-    return await traps_bot.say(final[::-1])
+    if not args:
+        return await traps_bot.say('Give me something to say backwards!')
+
+    text = ' '.join(args)
+
+    return await traps_bot.say(text[::-1])
 
 
 @traps_bot.command()
@@ -249,7 +235,6 @@ async def subreddit(subreddit = None):
             if 'error' in r:
                 if r['error'] == '404':
                     return await traps_bot.say("Something doesn't look right.")
-            print(url)
             if not r['data']['children']:
                 return await traps_bot.say('Looks pretty empty.')
             start = random.choice(r['data']['children'])
@@ -333,14 +318,12 @@ async def tw_dl(*args):
     }
 
     tweet_id = re.findall('/\d+$', tw_url)
-    print(tweet_id)
     if len(tweet_id) != 1:
         return await traps_bot.say("Try ?tw_dl [tweet_url]")
     tweet_id = tweet_id[0].replace("/", "")
 
     r = tw_api.request(f'statuses/show/:{tweet_id}', params)
     tweet_dict = json.loads(r.text)
-    pp.pprint(tweet_dict)
 
     media_to_parse = []
     if 'media' in tweet_dict['entities']:
@@ -529,6 +512,18 @@ async def connect4(ctx, player2_id):
         if c4.check_for_win():
             return await traps_bot.say(f'{c4.players_turn} wins! :confetti_ball:')
 
+@traps_bot.command()
+async def nhentai(*tags):
+    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where(), maxsize=1, timeout=5)
+    url = search_url = 'https://nhentai.net/'
+    if tags:
+        search_url += 'search/?q=' + '+'.join(tags)
+    r = http.request('GET', search_url)
+    soup = BeautifulSoup(r.data, 'html.parser')
+    #last_page = soup.find('a', class_='last').get('href').split('page=')[1]
+
+    images = [i.get('href') for i in soup.find_all('a', attrs={'class': 'cover'})]
+    return await traps_bot.say(url + random.choice(images)[1:])
 
 @traps_bot.command()
 async def safe(*args):

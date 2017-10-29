@@ -33,3 +33,11 @@ gay_message_dict = {
     '0e': 'o',
     '03': 'o',
 }
+
+commands_dict = {
+    'Text': ['backwards', 'retardo', 'spam', 'story', 'vertical'],
+    'Gay': ['doujin', 'gay', 'nsfw', 'privatefap', 'publicfap', 'safe'],
+    'Reddit': ['animemes', 'clips', 'food', 'memes', 'subreddit'],
+    'Music': ['np', 'pause', 'play', 'resume', 'stop', 'volume'],
+    'Misc': ['chu', 'nafe', 'nafesfw', 'nhentai', 'roll', 'tw_dl']
+}
