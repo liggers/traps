@@ -73,6 +73,7 @@ async def joined_at(ctx, member: discord.Member = None):
     return await traps_bot.say('{0} joined at {0.joined_at}'.format(member))
 
 
+
 @traps_bot.command(pass_context=True)
 async def commands(ctx):
     member = ctx.message.channel

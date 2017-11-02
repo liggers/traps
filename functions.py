@@ -1,11 +1,10 @@
 import random
 import requests
-import xml.etree.ElementTree as ET
 
 subreddit_max_search = 5
 
 
-def gelbooru_image_search(rating, trap="",  *args):
+def gelbooru_image_search(rating, trap="", *args):
     try:
         tags = f"-asian+-non-asian+rating%3a{rating}+{trap}"
         for i in args:
@@ -14,30 +13,19 @@ def gelbooru_image_search(rating, trap="",  *args):
             else:
                 tags += "+" + i
 
-        if not args:
-            pid = random.randint(0, 100)
-        else:
-            pid = ""
+        #pid = random.randint(0, 100) if not args else ""
+        url = f"http://gelbooru.com/index.php?page=dapi&s=post&q=index&tags={tags}&json=1"
+        r = requests.get(url).json()
 
-        url = f"http://gelbooru.com/index.php?page=dapi&s=post&q=index&tags={tags}&pid={pid}"
-        print(url)
-        r = requests.post(url, stream=True)
-        r.raw.decode_content = True
-        events = ET.iterparse(r.raw)
-        pic = []
+        return random.choice(r)['file_url']
 
-        for event, elem in events:
-            pic.append(elem)
-        del pic[-1]
-        pic = random.choice(pic)
-        pic = pic.attrib
-        return pic['file_url']
-    except IndexError:
+    except ValueError:
         return "Nice command."
+
 
 def subreddit_search(subreddit_list):
     headers = {'User-agent': 'traps-bot (by Keisakyu)'}
-    url = "https://www.reddit.com/r/" + random.choice(subreddit_list) + ".json"
+    url = f"https://www.reddit.com/r/{random.choice(subreddit_list)}.json"
     for i in range(0, subreddit_max_search):
         try:
             r = requests.get(url, headers=headers)
@@ -54,3 +42,4 @@ def subreddit_search(subreddit_list):
                 continue
         except:
             pass
+
