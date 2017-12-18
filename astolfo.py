@@ -12,7 +12,8 @@ import pprint
 from bs4 import BeautifulSoup
 import certifi
 from connect_4 import connect_4
-from time import (strftime, gmtime)
+from time import (strftime, strptime, gmtime, localtime)
+from tinydb import TinyDB, Query
 
 from trap_dict import *
 from TwitterAPI import TwitterAPI
@@ -81,6 +82,21 @@ async def commands(ctx):
     em.set_footer(text='The dick only makes it better!')
     for key, command_name in commands_dict.items():
         em.add_field(name=key, value='\n'.join(command_name))
+
+    return await traps_bot.send_message(member, embed=em)
+
+
+@traps_bot.command(pass_context=True)
+async def nationalday(ctx):
+    member = ctx.message.channel
+
+    db = TinyDB('national_days.json')
+    national_days = Query()
+    today = strftime("%Y-%m-%d", localtime())
+    today_title = strftime("%B %m", localtime())
+
+    em = discord.Embed(colour=0xFFC9E5)
+    em.add_field(name=f'{today_title}', value=db.search(national_days.date == today)[0]['national_days'])
 
     return await traps_bot.send_message(member, embed=em)
 

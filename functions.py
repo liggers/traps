@@ -1,5 +1,14 @@
 import random
 import requests
+from tinydb import TinyDB, Query
+from bs4 import BeautifulSoup
+import urllib3
+import certifi
+from datetime import datetime
+from time import strftime, strptime, localtime
+import pprint
+import re
+import unicodedata
 
 subreddit_max_search = 5
 
@@ -43,3 +52,33 @@ def subreddit_search(subreddit_list):
         except:
             pass
 
+def get_national_days():
+    db = TinyDB('national_days.json')
+    db.purge_tables()
+    months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+
+    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where(), maxsize=1, timeout=5)
+    for month in months:
+        url = f'https://nationaldaycalendar.com/{month}/'
+        r = http.request('GET', url)
+        soup = BeautifulSoup(r.data, 'html.parser')
+
+        days_container = soup.find_all("div", class_="et_pb_blurb_content")
+        current_year = strftime("%Y", localtime())
+        national_days_for_month = []
+
+        for day_container in days_container:
+            day_string = day_container.find("h4").string
+            day_string = re.sub(r'(\d)(st|nd|rd|th)', r'\1', day_string)
+            day_string = strftime(f"{current_year}-%m-%d", strptime(day_string, "%B %d"))
+
+            national_days = day_container.find_all("a")
+            national_days = "\n".join(national_day.text.replace("\n", " ") for national_day in national_days)
+
+            national_days_for_month.append({"date": day_string, "national_days": national_days})
+
+        db.insert_multiple(national_days_for_month)
+
+
+if __name__ == '__main__':
+    get_national_days()

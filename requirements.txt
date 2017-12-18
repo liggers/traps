@@ -10,6 +10,7 @@ pynacl
 pyparsing
 requests
 six
+tinydb
 twitterapi
 untangle
 urllib3[secure]
