@@ -13,6 +13,8 @@ from bs4 import BeautifulSoup
 import certifi
 from connect_4 import connect_4
 from time import (strftime, strptime, gmtime, localtime)
+from pytz import timezone
+from datetime import datetime
 from tinydb import TinyDB, Query
 
 from trap_dict import *
@@ -92,11 +94,13 @@ async def nationalday(ctx):
 
     db = TinyDB('national_days.json')
     national_days = Query()
-    today = strftime("%Y-%m-%d", localtime())
-    today_title = strftime("%B %m", localtime())
+
+    today_tz = datetime.now(timezone('US/Eastern'))
+    today_db = today_tz.strftime("%Y-%m-%d")
+    today_title = today_tz.strftime("%B %d")
 
     em = discord.Embed(colour=0xFFC9E5)
-    em.add_field(name=f'{today_title}', value=db.search(national_days.date == today)[0]['national_days'])
+    em.add_field(name=f'{today_title}', value=db.search(national_days.date == today_db)[0]['national_days'])
 
     return await traps_bot.send_message(member, embed=em)
 
