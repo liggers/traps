@@ -39,5 +39,6 @@ commands_dict = {
     'Gay': ['doujin', 'gay', 'nsfw', 'privatefap', 'publicfap', 'safe'],
     'Reddit': ['animemes', 'clips', 'food', 'memes', 'subreddit'],
     'Music': ['np', 'pause', 'play', 'resume', 'stop', 'volume'],
-    'Misc': ['chu', 'nafe', 'nafesfw', 'nhentai', 'roll', 'tw_dl']
+    'Misc': ['chu', 'nafe', 'nationalday', 'nafesfw', 'nhentai', 'roll', 'tw_dl'],
+    'Fun': ['connect4']
 }
