@@ -9,6 +9,7 @@ from time import strftime, strptime, localtime
 import pprint
 import re
 import unicodedata
+from json.decoder import JSONDecodeError
 
 subreddit_max_search = 5
 
@@ -24,9 +25,15 @@ def gelbooru_image_search(rating, trap="", *args):
 
         #pid = random.randint(0, 100) if not args else ""
         url = f"http://gelbooru.com/index.php?page=dapi&s=post&q=index&tags={tags}&json=1"
-        r = requests.get(url).json()
+        r = requests.get(url)
+        print(r.text)
+        r = r.json()
 
         return random.choice(r)['file_url']
+
+    except JSONDecodeError:
+        fucked = r.text
+        return fucked
 
     except ValueError:
         return "Nice command."
