@@ -1,14 +1,11 @@
 import random
 import requests
-from tinydb import TinyDB, Query
+from tinydb import TinyDB
 from bs4 import BeautifulSoup
 import urllib3
 import certifi
-from datetime import datetime
 from time import strftime, strptime, localtime
-import pprint
 import re
-import unicodedata
 from json.decoder import JSONDecodeError
 
 subreddit_max_search = 5
