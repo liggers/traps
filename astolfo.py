@@ -567,7 +567,7 @@ async def nafe(*args):
 
 @traps_bot.command()
 async def nafesfw(*args):
-    return await traps_bot.say(functions.gelbooru_image_search( "explicit",   *args))
+    return await traps_bot.say(functions.gelbooru_image_search("explicit",   *args))
 
 
 @traps_bot.command()

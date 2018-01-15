@@ -12,21 +12,23 @@ subreddit_max_search = 5
 
 
 def gelbooru_image_search(rating, trap="", *args):
-    try:
-        tags = f"-asian+-non-asian+rating%3a{rating}+{trap}"
-        for i in args:
-            if trap == 'trap' and '-trap' in i.lower():
-                    return "What are you trying to pull here? The dick only makes it better!"
-            else:
-                tags += "+" + i
+    args = [x.lower() for x in args]
+    base_url = "https://danbooru.donmai.us"
+    if trap == 'trap' and '-trap' in args:
+        return "What are you trying to pull here? The dick only makes it better!"
 
-        #pid = random.randint(0, 100) if not args else ""
-        url = f"http://gelbooru.com/index.php?page=dapi&s=post&q=index&tags={tags}&json=1"
+    try:
+        tags = f"tags={trap}+{'+'.join(args)}"
+        rating = f"rating%3A{rating}"
+
+        url = f"{base_url}/posts.json?{tags}+{rating}"
         r = requests.get(url)
-        print(r.text)
         r = r.json()
 
-        return random.choice(r)['file_url']
+        if 'success' in r:
+            return r['message']
+
+        return f"{base_url}{random.choice(r)['large_file_url']}" if r else "Nothing to see here"
 
     except JSONDecodeError:
         fucked = r.text
