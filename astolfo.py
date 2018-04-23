@@ -1,24 +1,25 @@
+import certifi
 import discord
-import random, os
-import requests
-from discord.ext.commands import Bot
-#from opus_loader import load_opus_lib
 import functions
-import re
 import json
 import operator
-import urllib3
+import random
+import re
+import requests
+import os
 import pprint
+import urllib3
 from bs4 import BeautifulSoup
-import certifi
-from connect_4 import connect_4
-from time import (strftime, strptime, gmtime, localtime)
-from pytz import timezone
+from connect_4 import Connect4
 from datetime import datetime
+from discord.ext.commands import Bot
+#from opus_loader import load_opus_lib
+from pytz import timezone
 from tinydb import TinyDB, Query
+from time import (strftime, strptime, gmtime, localtime)
+from TwitterAPI import TwitterAPI
 
 from trap_dict import *
-from TwitterAPI import TwitterAPI
 
 import config
 
@@ -76,7 +77,6 @@ async def joined_at(ctx, member: discord.Member = None):
     return await traps_bot.say('{0} joined at {0.joined_at}'.format(member))
 
 
-
 @traps_bot.command(pass_context=True)
 async def commands(ctx):
     member = ctx.message.channel
@@ -113,7 +113,7 @@ async def roll():
         roll_text += number_emoji_dict[x]
 
     if number == 100:
-        roll_text += ":confetti_ball: :confetti_ball: :confetti_ball:"
+        roll_text += ":confetti_ball: " * 3
 
     return await traps_bot.say(roll_text)
 
@@ -498,7 +498,7 @@ async def connect4(ctx, player2_id):
             player2 = x
             break
 
-    c4 = connect_4(player1.name, player2.name)
+    c4 =Connect4(player1.name, player2.name)
 
     previous_board = await traps_bot.say(c4.create_board())
     #await traps_bot.say(player1.avatar_url)
@@ -533,6 +533,7 @@ async def connect4(ctx, player2_id):
         if c4.check_for_win():
             return await traps_bot.say(f'{c4.players_turn} wins! :confetti_ball:')
 
+
 @traps_bot.command()
 async def nhentai(*tags):
     http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where(), maxsize=1, timeout=5)
@@ -549,6 +550,7 @@ async def nhentai(*tags):
         return await traps_bot.say(url + random.choice(images)[1:])
     except IndexError:
         return await traps_bot.say("No hentai found!")
+
 
 @traps_bot.command()
 async def safe(*args):

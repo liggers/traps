@@ -28,7 +28,7 @@ def gelbooru_image_search(rating, trap="", *args):
         if 'success' in r:
             return r['message']
 
-        return f"{base_url}{random.choice(r)['large_file_url']}" if r else "Nothing to see here"
+        return f"{random.choice(r)['large_file_url']}" if r else "Nothing to see here"
 
     except JSONDecodeError:
         fucked = r.text

@@ -1,12 +1,14 @@
 from copy import deepcopy
 
+
 def rotate_list(list_to_rotate, rotate_num):
     for x in range(rotate_num):
         list_to_rotate.append(list_to_rotate.pop(0))
 
     return list_to_rotate
 
-class connect_4:
+
+class Connect4:
     def __init__(self, player1_name, player2_name):
         self.rows = 6
         self.columns = 7
@@ -58,7 +60,8 @@ class connect_4:
                     if index > self.columns - self.number_in_a_row:
                         break
                     elif piece == self.player_dict[self.players_turn]:
-                        if all(next_piece == self.player_dict[self.players_turn] for next_piece in row[index: self.number_in_a_row + index]):
+                        if all(next_piece == self.player_dict[self.players_turn]
+                               for next_piece in row[index: self.number_in_a_row + index]):
                             return True
                     else:
                         continue
@@ -70,7 +73,8 @@ class connect_4:
                     if index > self.rows - self.number_in_a_row:
                         break
                     elif piece == self.player_dict[self.players_turn]:
-                        if all(next_piece == self.player_dict[self.players_turn] for next_piece in column[index: self.number_in_a_row + index]):
+                        if all(next_piece == self.player_dict[self.players_turn]
+                               for next_piece in column[index: self.number_in_a_row + index]):
                             return True
                     else:
                         continue
@@ -84,21 +88,24 @@ class connect_4:
                     if index > self.rows - self.number_in_a_row:
                         break
                     elif piece == self.player_dict[self.players_turn]:
-                        if all(next_piece == self.player_dict[self.players_turn] for next_piece in column[index: self.number_in_a_row + index]):
+                        if all(next_piece == self.player_dict[self.players_turn]
+                               for next_piece in column[index: self.number_in_a_row + index]):
                             return True
                     else:
                         continue
 
         def diagonal_down_win():
             workable_board = deepcopy(check_for_win_board)
-            diag_board = [rotate_list(rotate_row, (self.number_in_a_row - index - 1)) for index, rotate_row in enumerate(workable_board)]
+            diag_board = [rotate_list(rotate_row, (self.number_in_a_row - index - 1))
+                          for index, rotate_row in enumerate(workable_board)]
             for x in range(0, self.columns):
                 column = [row[x] for row in diag_board]
                 for index, piece in enumerate(column):
                     if index > self.rows - self.number_in_a_row:
                         break
                     elif piece == self.player_dict[self.players_turn]:
-                        if all(next_piece == self.player_dict[self.players_turn] for next_piece in column[index: self.number_in_a_row + index]):
+                        if all(next_piece == self.player_dict[self.players_turn]
+                               for next_piece in column[index: self.number_in_a_row + index]):
                             return True
                     else:
                         continue
