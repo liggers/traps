@@ -81,7 +81,8 @@ class Connect4:
 
         def diagonal_up_win():
             workable_board = deepcopy(check_for_win_board)
-            diag_board = [rotate_list(rotate_row, (index + 1)) for index, rotate_row in enumerate(workable_board)]
+            diag_board = [rotate_list(rotate_row, (index + 1))
+                          for index, rotate_row in enumerate(workable_board)]
             for x in range(0, self.columns):
                 column = [row[x] for row in diag_board]
                 for index, piece in enumerate(column):

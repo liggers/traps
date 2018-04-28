@@ -9,6 +9,7 @@ import requests
 import os
 import pprint
 import urllib3
+from unidecode import unidecode
 from bs4 import BeautifulSoup
 from connect_4 import Connect4
 from datetime import datetime
@@ -60,10 +61,10 @@ async def on_message(message):
         message_formatted = re.sub('[][!@#$%^&*(){}\-_=+`~|.,<>/;:\'\"]', '', message_formatted)
 
         message_formatted_reversed = message_formatted[::-1]
-        if any(x in message_formatted for x in gay_list) and message.author.name != bot_name:
+        if any(unidecode(x) in message_formatted for x in gay_list) and message.author.name != bot_name:
             await traps_bot.send_message(message.channel, "Not gay")
 
-        if any(x in message_formatted_reversed for x in gay_list) and message.author.name != bot_name:
+        if any(unidecode(x) in message_formatted_reversed for x in gay_list) and message.author.name != bot_name:
             await traps_bot.send_message(message.channel, "yag toN")
 
     await traps_bot.process_commands(message)
