@@ -4,6 +4,7 @@ async-timeout
 beautifulsoup4
 chardet
 discord.py[voice]
+fuzzywuzzy
 multidict
 packaging
 pynacl

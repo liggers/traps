@@ -1,28 +1,29 @@
-import certifi
-import discord
-import functions
 import json
 import operator
-import random
-import re
-import requests
 import os
 import pprint
-import urllib3
-from unidecode import unidecode
-from bs4 import BeautifulSoup
-from connect_4 import Connect4
+import random
+import re
 from datetime import datetime
+from time import (strftime, gmtime)
+
+import certifi
+import discord
+import requests
+import urllib3
+from TwitterAPI import TwitterAPI
+from bs4 import BeautifulSoup
 from discord.ext.commands import Bot
-#from opus_loader import load_opus_lib
+from fuzzywuzzy import process
+# from opus_loader import load_opus_lib
 from pytz import timezone
 from tinydb import TinyDB, Query
-from time import (strftime, strptime, gmtime, localtime)
-from TwitterAPI import TwitterAPI
-
-from trap_dict import *
+from unidecode import unidecode
 
 import config
+import functions
+from connect_4 import Connect4
+from trap_dict import *
 
 token = config.token
 tw_api = TwitterAPI(config.tw_consumer_key,
@@ -75,7 +76,7 @@ async def joined_at(ctx, member: discord.Member = None):
     if member is None:
         member = ctx.message.author
 
-    return await traps_bot.say('{0} joined at {0.joined_at}'.format(member))
+    return await traps_bot.say(f'{member} joined at {member.joined_at}')
 
 
 @traps_bot.command(pass_context=True)
@@ -263,7 +264,8 @@ async def subreddit(subreddit = None):
             first_suggestion = r['data']['children'][0]
 
             if 't5' in first_suggestion['kind']:
-                return await traps_bot.say('Is this what you meant?\n' + "https://reddit.com" + first_suggestion ['data']['url'])
+                return await traps_bot.say('Is this what you meant?\n'
+                                           + "https://reddit.com" + first_suggestion ['data']['url'])
             else:
                 posttype = start['data']['is_self']
                 replacement = 'amp;'
@@ -271,7 +273,8 @@ async def subreddit(subreddit = None):
                     pic = start['data']['url']
                     if replacement in pic:
                         pic = pic.replace(replacement, "")
-                    return await traps_bot.say("Source:\n<https://www.reddit.com"+start['data']['permalink'] + ">\n\n" + pic)
+                    return await traps_bot.say("Source:\n<https://www.reddit.com"
+                                               + start['data']['permalink'] + ">\n\n" + pic)
                 else:
                     continue
         except (KeyError, IndexError):
@@ -551,6 +554,37 @@ async def nhentai(*tags):
         return await traps_bot.say(url + random.choice(images)[1:])
     except IndexError:
         return await traps_bot.say("No hentai found!")
+
+
+@traps_bot.command()
+async def tdoll(*name):
+    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where(), maxsize=1, timeout=5)
+    base_url = "https://en.gfwiki.com"
+    url_index = 'https://en.gfwiki.com/wiki/T-Doll_Index'
+
+    # if name:
+    #     search_url += 'search/?q=' + '+'.join(tag.replace("_", "-") for tag in tags)
+    r = http.request('GET', url_index)
+    soup = BeautifulSoup(r.data, 'html.parser')
+
+    tdolls = [i.contents[0].contents[0].get("href") for i in soup.find_all('div', attrs={'class': 'card-bg-small'})]
+
+    tdoll_choice = base_url + random.choice(tdolls)
+
+    if name:
+        prefix = "/wiki/"
+        matches = process.extract(prefix + name[0], tdolls)
+        # sorted(matches, key=lambda x: x[1])
+        best_match = matches[0]
+        print(matches)
+
+        if best_match[1] >= 90:
+            tdoll_choice = base_url + best_match[0]
+
+        else:
+            return await traps_bot.say(f"Did you mean {best_match[0].replace(prefix, '')}?")
+
+    return await traps_bot.say(tdoll_choice)
 
 
 @traps_bot.command()

@@ -40,5 +40,6 @@ commands_dict = {
     'Reddit': ['animemes', 'clips', 'food', 'memes', 'subreddit'],
     'Music': ['np', 'pause', 'play', 'resume', 'stop', 'volume'],
     'Misc': ['chu', 'nafe', 'nationalday', 'nafesfw', 'nhentai', 'roll', 'tw_dl'],
-    'Fun': ['connect4']
+    'Fun': ['connect4'],
+    'Wiki': ['tdoll']
 }
