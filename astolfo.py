@@ -135,6 +135,12 @@ async def chu():
 
 
 @traps_bot.command()
+async def dab():
+    pic = os.path.join("./files/gif", "carl_dab.gif")
+    return await traps_bot.upload(pic)
+
+
+@traps_bot.command()
 async def spam(*args):
     if not args:
         return await traps_bot.say("Give me some spam and a number!")
