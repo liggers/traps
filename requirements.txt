@@ -6,6 +6,7 @@ chardet
 discord.py[voice]
 fuzzywuzzy
 multidict
+num2words
 packaging
 pynacl
 pyparsing

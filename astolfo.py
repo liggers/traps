@@ -23,6 +23,7 @@ from unidecode import unidecode
 import config
 import functions
 from connect_4 import Connect4
+from tictactoe import TicTacToe
 from trap_dict import *
 
 token = config.token
@@ -508,7 +509,7 @@ async def connect4(ctx, player2_id):
             player2 = x
             break
 
-    c4 =Connect4(player1.name, player2.name)
+    c4 = Connect4(player1.name, player2.name)
 
     previous_board = await traps_bot.say(c4.create_board())
     #await traps_bot.say(player1.avatar_url)
@@ -542,6 +543,65 @@ async def connect4(ctx, player2_id):
 
         if c4.check_for_win():
             return await traps_bot.say(f'{c4.players_turn} wins! :confetti_ball:')
+
+
+@traps_bot.command(pass_context=True, aliases=["ttt"])
+async def tictactoe(ctx, player2_id):
+    def check(msg):
+        msg = msg.content
+        try:
+            assert len(msg) == 2
+            assert msg[0].isalpha()
+            assert 0 < ord(msg[0].lower()) - 96 <= 3
+            num = int(msg[1])
+            assert 0 < num <= 3
+            return True
+
+        except AssertionError:
+            return False
+
+    player1 = ctx.message.author
+    player2 = re.findall(r'\d+', player2_id)[0]
+    player2 = next(x for x in ctx.message.server.members if int(x.id) == int(player2))
+
+    ttt = TicTacToe(player1.name, player2.name)
+
+    successful_placement = True
+    previous_board = None
+    messages_to_delete = []
+    while True:
+        if len(messages_to_delete) >= 8:
+            await traps_bot.delete_messages(messages_to_delete)
+
+        if successful_placement:
+            msg = f"{ttt.create_board()}{ttt.players_turn} is {ttt.current_players_piece}. Your turn"
+            if previous_board:
+                previous_board = await traps_bot.edit_message(previous_board, new_content=msg)
+            else:
+                previous_board = await traps_bot.say(msg + f"\n")
+
+        author = discord.utils.get(ctx.message.server.members, name=ttt.players_turn)
+        board_position = await traps_bot.wait_for_message(timeout=600, author=author, check=check)
+        successful_placement = ttt.place_piece(board_position.content[1], (ord(board_position.content[0].lower()) - 96))
+        messages_to_delete.append(board_position)
+
+        if successful_placement is False:
+            messages_to_delete.append(await traps_bot.say(f"`{board_position.content.upper()}` is already taken!"))
+            continue
+
+        if len(messages_to_delete) > 1:
+            await traps_bot.delete_messages(messages_to_delete)
+        else:
+            await traps_bot.delete_message(messages_to_delete[0])
+
+        if ttt.num_of_pieces_played >= ttt.rows * ttt.columns:
+            return await traps_bot.say(f"{ttt.create_board()}\nDraw!")
+
+        if ttt.turn_count >= 3 and ttt.check_for_win():
+            await traps_bot.delete_message(previous_board)
+            return await traps_bot.say(ttt.create_board() + f"\n{ttt.players_turn} wins! :confetti_ball:")
+
+        ttt.switch_players_turn()
 
 
 @traps_bot.command()
