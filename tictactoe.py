@@ -78,16 +78,16 @@ class TicTacToe:
                     return True
 
         def diagonal_up_win():
-            return _diagonal_win("+")
+            rotate_func = (lambda x: self.number_in_a_row - x - 1)
+            return _diagonal_win(rotate_func)
 
         def diagonal_down_win():
-            return _diagonal_win("-")
+            rotate_func = (lambda x: self.number_in_a_row + x)
+            return _diagonal_win(rotate_func)
 
-        def _diagonal_win(op):
-            ops = {"+": operator.add, "-": operator.sub}
-
+        def _diagonal_win(rotate_func):
             board_copy = deepcopy(self.playing_board)
-            board_copy = [rotate_list(row, ops[op](i, 1)) for i, row in enumerate(board_copy)]
+            board_copy = [rotate_list(row, rotate_func(i)) for i, row in enumerate(board_copy, start=0)]
 
             return vertical_win(board_copy)
 
